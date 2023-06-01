@@ -2,7 +2,7 @@
 import { Context } from "koa";
 import { getManager } from "typeorm";
 import {User}from "../dbc/user"
-import { user } from "../../type";
+import * from "koa-bodyparser"
 
 var getUserInfo = async function (ctx: Context) { 
    
@@ -14,15 +14,13 @@ var getUserInfo = async function (ctx: Context) {
       if (userInfo===null) {
         ctx.status =404;  //not found  //ctx.throw(404, "user not found");  //Throw an error  //ctx.status
        }else{
-        ctx.body=userInfo;  //return userInfo  //ctx.throw(200, "user found");  //Return userInfo  //ctx.status
-        ctx.status=200;  //OK  //ctx.throw(200, "OK");  //Return userInfo  //ctx.status  //ctx.body
+        ctx.body={code:200,message: "OK",data: {userInfo}};  //return userInfo  //ctx.throw(200, "user found");  //Return userInfo  //ctx.status
        }
         //if userInfo is defined...  //ctx.state.user is a typeguard...  //ctx.request.
 
 }
 
 var changeUserInfo= async function (ctx:Context) {
-  
   // changeType代表修改用户信息的类型，0为删除，1为添加，2为修改
    let {userId,changeType,userInfo}=await ctx.request.body;  //ctx.request.body is a typeguard...  //ctx.request.body.user
    let userRepository=getManager().getRepository(User);  //getRepo...  //userRepo is a typeguard...  //ctx.request.body.  //userRepo is a typeguard...  //ctx.request.body.userId is a typeguard...  //ctx.request.body.user  //ctx.request.body.userId is a typeguard...  //ctx.request.body.user.  //ctx.request.body.user.id is a typeguard...  //ctx.request.body.user.name is a typeguard
@@ -41,26 +39,34 @@ var changeUserInfo= async function (ctx:Context) {
       break;
       
       case 1:  //add user  //ctx.request.body.user.name is a typeguard...  //ctx.request.body.user
-      await userRepository.save(userId,userInfo).catch((err):void=>{  //save...  //ctx.request.body.userId is a type
+      await userRepository.save(userId,userInfo).then((userInfo) :void => {
+        ctx.body = userInfo;  //ctx.request.body.user  //ctx.request.body.userId is a typeguard...  //ctx.request.body.user.  //ctx.request.body.user.id is a typeguard...  //ctx.request.body.user.name is a typeguard...  //ctx.request.body.user.name  //ctx.request.body.user.id is a typeguard...  //ctx.request.body.user.name  //ctx.request.body.user.id is a typeguard...
+        ctx.status = 200;  //ok  //ctx.throw(200, "ok");  //ctx.status  //ctx.body  //ctx
+        
+      }).catch((err):void=>{  //save...  //ctx.request.body.userId is a type
       if (err) {
         console.log(err)
         ctx.status=500;  //server error  //ctx.throw(500, "server error");  //Throw an error  //ctx.status  //ctx
         console.log(err);  //console.error(err)  //console.error(err.message)  //console.error(err.
 
-      }else{
-        ctx.body = userInfo;  //ctx.request.body.user  //ctx.request.body.userId is a typeguard...  //ctx.request.body.user.  //ctx.request.body.user.id is a typeguard...  //ctx.request.body.user.name is a typeguard...  //ctx.request.body.user.name  //ctx.request.body.user.id is a typeguard...  //ctx.request.body.user.name  //ctx.request.body.user.id is a typeguard...
-        ctx.status = 200;  //ok  //ctx.throw(200, "ok");  //ctx.status  //ctx.body  //ctx
-        
       }
       })
       break;
 
       case 2:
-        await userRepository.save(userId)
-
-    default:
-      break;
+        let id= userId
+        await userRepository.update(id,userInfo).catch((err) :void => {
+          if(err){
+            console.log(err);
+            ctx.status=500;  //server error  //ctx.throw(500, "server error");  //Throw an error  //ctx.status
+           
+          }
+        })
+        ctx.body = userInfo;  //ctx.request.body.userId is a typeguard...  //ctx.request.body.user.
   }
 
 
 }
+
+export {getUserInfo,changeUserInfo}
+

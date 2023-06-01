@@ -15,7 +15,7 @@ context: string; 	// name of the column in the table, not nullable, not auto inc
 createTime:Date; 
 @Column()
 favourite:number;
-@Column()
+@Column({})
 idFavourite:string[]; 	// name of the column in the table, not nullable, not auto incremented, set to "text" for a
 
 

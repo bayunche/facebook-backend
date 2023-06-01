@@ -1,6 +1,5 @@
-import { type } from 'os';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
-
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm'
+import {Posts} from './posts'
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -15,7 +14,7 @@ export class User {
     sex: string;
     @Column() 		//  @Column(type="varchar2", length=30) 描述: 指定字段类
     birthday: string;
-    @Column()
+    @CreateDateColumn()
     loginTime: Date;
     @Column()
     phone: number;
@@ -24,7 +23,8 @@ export class User {
     @Column()
     resignTime: string; 		//  @Column(type="jsonb", nullable=true) 描述: 指定字段的json
     //  @Column(type="varchar2", length=30) 描述: 指定字段类
-
+    @OneToMany(() => Posts, post => post.user)
+    posts: Posts[];
 
     //auto increse  id 	int4, 	NOT NULL, 	PRIMARY KEY (
 }	//Address类型是主键ID，名称叫做id，数据类型叫做bigint，在数
